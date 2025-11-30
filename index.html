@@ -5,24 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merrill Bluejays Wrestling</title>
     
-    <!-- 1. Load Styles (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. Load React & ReactDOM (Core Framework) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- 3. Load Dependencies for Recharts (CRITICAL for Charts to work) -->
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
     <script src="https://unpkg.com/react-is/umd/react-is.production.min.js"></script>
     
-    <!-- 4. Load Recharts (Charting Library) -->
     <script src="https://unpkg.com/recharts@2.12.3/umd/Recharts.js"></script>
 
-    <!-- 5. Load Babel (Compiles the code in browser) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- 6. Load Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -38,12 +32,12 @@
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
-        // Import Firebase from Google's CDN
+        // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // YOUR FIREBASE CONFIGURATION
+        // FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KrKM27sYTLQ",
             authDomain: "bluejays-wrestling.firebaseapp.com",
@@ -63,6 +57,7 @@
             db = getFirestore(app);
         } catch (error) {
             console.error("Firebase Error:", error);
+            alert("Critical Error: Firebase failed to load. " + error.message);
         }
 
         const { useState, useEffect, useRef } = React;
@@ -75,7 +70,7 @@
         };
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = RechartsObj;
         
-        // --- UI COMPONENTS ---
+        // --- COMPONENTS ---
         const Button = ({ children, onClick, variant = 'primary', className = '', disabled = false }) => {
             const base = "px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-95";
             const variants = {
@@ -96,7 +91,7 @@
             </div>
         );
 
-        // --- FOCUS GAME COMPONENT ---
+        // --- FOCUS GAME ---
         const FocusGrid = ({ onComplete }) => {
             const [grid, setGrid] = useState([]);
             const [nextNum, setNextNum] = useState(0);
@@ -192,7 +187,7 @@
             );
         };
 
-        // --- MAIN APP COMPONENT ---
+        // --- MAIN APP ---
         const App = () => {
             const [user, setUser] = useState(null);
             const [userProfile, setUserProfile] = useState(null);
@@ -206,6 +201,7 @@
             const [noteInput, setNoteInput] = useState('');
             const [coachPasscode, setCoachPasscode] = useState('');
             const [showCoachModal, setShowCoachModal] = useState(false);
+            const [isVerifying, setIsVerifying] = useState(false);
 
             useEffect(() => {
                 if (window.lucide) window.lucide.createIcons();
@@ -244,20 +240,36 @@
             }, [user, userProfile]);
 
             const fetchProfile = async (uid, email) => {
-                const docRef = doc(db, 'users', uid);
-                const s = await getDoc(docRef);
-                if (s.exists()) setUserProfile(s.data());
-                else {
-                    const p = { uid, email, name: email ? email.split('@')[0] : 'Athlete', role: 'athlete', weightClass: '' };
-                    await setDoc(docRef, p);
-                    await setDoc(doc(db, 'roster', uid), { uid, name: p.name, email, weightClass: '' });
-                    setUserProfile(p);
+                try {
+                    const docRef = doc(db, 'users', uid);
+                    const s = await getDoc(docRef);
+                    if (s.exists()) setUserProfile(s.data());
+                    else {
+                        const p = { uid, email: email || 'Guest', name: email ? email.split('@')[0] : 'Athlete', role: 'athlete', weightClass: '' };
+                        await setDoc(docRef, p);
+                        await setDoc(doc(db, 'roster', uid), { uid, name: p.name, email: p.email, weightClass: '' });
+                        setUserProfile(p);
+                    }
+                } catch (e) {
+                    console.error("Profile Fetch Error:", e);
+                    // Silent fail to prevent UI loops
                 }
             };
 
             const handleLogin = async () => {
-                try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-                catch (e) { alert("Login failed. Check popup blockers."); }
+                try { 
+                    await signInWithPopup(auth, new GoogleAuthProvider()); 
+                } catch (e) { 
+                    alert("GOOGLE LOGIN ERROR:\nCode: " + e.code + "\nMessage: " + e.message + "\n\nFIX: Go to Firebase Console > Authentication > Settings > Authorized Domains and add this website's domain.");
+                }
+            };
+
+            const handleGuestLogin = async () => {
+                try {
+                    await signInAnonymously(auth);
+                } catch (e) {
+                    alert("GUEST LOGIN ERROR:\nCode: " + e.code + "\nMessage: " + e.message + "\n\nFIX: Go to Firebase Console > Authentication > Sign-in method and enable 'Anonymous'.");
+                }
             };
 
             const handleWeightSubmit = async (e) => {
@@ -279,13 +291,42 @@
                 });
             };
 
+            // IMPROVED COACH VERIFY LOGIC
             const handleCoachVerify = async () => {
-                if (coachPasscode === 'bluejay') {
-                    const p = { ...userProfile, role: 'coach' };
-                    await setDoc(doc(db, 'users', user.uid), p);
+                if (coachPasscode !== 'bluejay') {
+                    alert("Incorrect Passcode. Hint: bluejay");
+                    return;
+                }
+                
+                setIsVerifying(true);
+                try {
+                    // Force a guest login if not logged in
+                    let currentUser = user;
+                    if (!currentUser) {
+                        try {
+                            const result = await signInAnonymously(auth);
+                            currentUser = result.user;
+                        } catch (e) {
+                            throw new Error("Guest Login disabled. Check Firebase Console: " + e.message);
+                        }
+                    }
+
+                    // Create Coach Profile
+                    const p = { 
+                        uid: currentUser.uid, 
+                        email: currentUser.email || 'Coach', 
+                        name: 'Coach', 
+                        role: 'coach',
+                        weightClass: '' 
+                    };
+                    
+                    await setDoc(doc(db, 'users', currentUser.uid), p);
                     setUserProfile(p);
                     setShowCoachModal(false);
-                } else alert("Wrong code.");
+                } catch (e) {
+                    alert("Verification Failed: " + e.message);
+                }
+                setIsVerifying(false);
             };
 
             const updateProfile = async (key, val) => {
@@ -303,8 +344,10 @@
                         <div className="bg-blue-100 p-4 rounded-full inline-block mb-4"><i data-lucide="trending-up" className="w-12 h-12 text-blue-700"></i></div>
                         <h1 className="text-3xl font-extrabold text-blue-900">Merrill Bluejays</h1>
                         <p className="text-gray-500 mb-8">Girls Wrestling Tracker</p>
+                        
                         <Button onClick={handleLogin} className="w-full justify-center mb-4"><i data-lucide="user" className="w-5 h-5 mr-2"></i> Sign in with Google</Button>
-                        <Button onClick={() => signInAnonymously(auth)} variant="ghost" className="w-full text-xs">Guest Login (Testing)</Button>
+                        <Button onClick={handleGuestLogin} variant="ghost" className="w-full text-xs">Guest Login (Testing)</Button>
+                        
                         <div className="mt-6 pt-6 border-t">
                             <button onClick={() => setShowCoachModal(true)} className="text-sm text-gray-500 hover:text-blue-700">Coach Access</button>
                         </div>
@@ -316,7 +359,9 @@
                                 <input type="password" placeholder="Passcode" className="w-full border p-3 rounded-lg mb-4" value={coachPasscode} onChange={e => setCoachPasscode(e.target.value)} />
                                 <div className="flex gap-2">
                                     <Button onClick={() => setShowCoachModal(false)} variant="ghost" className="flex-1">Cancel</Button>
-                                    <Button onClick={handleCoachVerify} className="flex-1">Verify</Button>
+                                    <Button onClick={handleCoachVerify} disabled={isVerifying} className="flex-1">
+                                        {isVerifying ? 'Verifying...' : 'Verify'}
+                                    </Button>
                                 </div>
                             </div>
                         </div>

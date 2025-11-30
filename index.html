@@ -1,3 +1,4 @@
+<!-- //thisone_v2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,18 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merrill Bluejays Wrestling</title>
     
+    <!-- 1. Load Styles (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- 2. Load React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
+    <!-- 3. Load Dependencies for Recharts (CRITICAL) -->
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
     <script src="https://unpkg.com/react-is/umd/react-is.production.min.js"></script>
     
+    <!-- 4. Load Recharts (Charting Library) -->
     <script src="https://unpkg.com/recharts@2.12.3/umd/Recharts.js"></script>
 
+    <!-- 5. Load Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+    <!-- 6. Load Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -32,7 +39,6 @@
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
-        // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -62,7 +68,6 @@
 
         const { useState, useEffect, useRef } = React;
         
-        // Safety check for Recharts
         const RechartsObj = window.Recharts || {
             LineChart: () => null, Line: () => null, XAxis: () => null, 
             YAxis: () => null, CartesianGrid: () => null, Tooltip: () => null, 
@@ -175,9 +180,12 @@
                         <div className="grid grid-cols-10 gap-1 w-full aspect-square select-none">
                             {grid.map((num) => (
                                 <div key={num} onClick={() => handleCellClick(num)}
+                                    // UPDATED LOGIC: No highlighting for the current number (num === nextNum)
                                     className={`aspect-square flex items-center justify-center text-[10px] sm:text-sm font-bold rounded cursor-pointer transition-colors duration-100 
-                                    ${num < nextNum ? 'bg-blue-200 text-blue-400' : 'bg-white border hover:bg-blue-50'}
-                                    ${num === nextNum ? 'ring-2 ring-blue-600 z-10 bg-blue-50 scale-105' : ''}`}>
+                                    ${num < nextNum 
+                                        ? 'bg-blue-100 text-blue-300' // Completed numbers are dim
+                                        : 'bg-white border hover:bg-blue-50 text-gray-800' // All others (including target) look the same
+                                    }`}>
                                     {num.toString().padStart(2, '0')}
                                 </div>
                             ))}
@@ -252,7 +260,6 @@
                     }
                 } catch (e) {
                     console.error("Profile Fetch Error:", e);
-                    // Silent fail to prevent UI loops
                 }
             };
 
@@ -291,7 +298,7 @@
                 });
             };
 
-            // IMPROVED COACH VERIFY LOGIC
+            // COACH VERIFY
             const handleCoachVerify = async () => {
                 if (coachPasscode !== 'bluejay') {
                     alert("Incorrect Passcode. Hint: bluejay");
@@ -300,18 +307,16 @@
                 
                 setIsVerifying(true);
                 try {
-                    // Force a guest login if not logged in
                     let currentUser = user;
                     if (!currentUser) {
                         try {
                             const result = await signInAnonymously(auth);
                             currentUser = result.user;
                         } catch (e) {
-                            throw new Error("Guest Login disabled. Check Firebase Console: " + e.message);
+                            throw new Error("Guest Login disabled. Check Firebase Console.");
                         }
                     }
 
-                    // Create Coach Profile
                     const p = { 
                         uid: currentUser.uid, 
                         email: currentUser.email || 'Coach', 

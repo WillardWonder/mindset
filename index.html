@@ -1,12 +1,473 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merrill Bluejays Wrestling</title>
-  </head>
-  <body>
+    
+    <!-- 1. Load Styles (Tailwind CSS) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load React & ReactDOM (Core Framework) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- 3. Load Dependencies for Recharts (CRITICAL for Charts to work) -->
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    <script src="https://unpkg.com/react-is/umd/react-is.production.min.js"></script>
+    
+    <!-- 4. Load Recharts (Charting Library) -->
+    <script src="https://unpkg.com/recharts@2.12.3/umd/Recharts.js"></script>
+
+    <!-- 5. Load Babel (Compiles the code in browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 6. Load Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+    <script type="text/babel" data-type="module">
+        // Import Firebase from Google's CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // YOUR FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KrKM27sYTLQ",
+            authDomain: "bluejays-wrestling.firebaseapp.com",
+            databaseURL: "https://bluejays-wrestling-default-rtdb.firebaseio.com",
+            projectId: "bluejays-wrestling",
+            storageBucket: "bluejays-wrestling.firebasestorage.app",
+            messagingSenderId: "23720620944",
+            appId: "1:23720620944:web:2444e543fe6f8812f8f915",
+            measurementId: "G-JFG8K0HQK5"
+        };
+
+        // Initialize Firebase
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Firebase Error:", error);
+        }
+
+        const { useState, useEffect, useRef } = React;
+        
+        // Safety check for Recharts
+        const RechartsObj = window.Recharts || {
+            LineChart: () => null, Line: () => null, XAxis: () => null, 
+            YAxis: () => null, CartesianGrid: () => null, Tooltip: () => null, 
+            ResponsiveContainer: ({children}) => children
+        };
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = RechartsObj;
+        
+        // --- UI COMPONENTS ---
+        const Button = ({ children, onClick, variant = 'primary', className = '', disabled = false }) => {
+            const base = "px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-95";
+            const variants = {
+                primary: "bg-blue-700 hover:bg-blue-800 text-white shadow-md shadow-blue-200",
+                secondary: "bg-white text-blue-800 border-2 border-blue-700 hover:bg-blue-50",
+                ghost: "bg-transparent text-gray-600 hover:bg-gray-100"
+            };
+            return (
+                <button onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className} ${disabled ? 'opacity-50' : ''}`}>
+                    {children}
+                </button>
+            );
+        };
+
+        const Card = ({ children, className = '' }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 ${className}`}>
+                {children}
+            </div>
+        );
+
+        // --- FOCUS GAME COMPONENT ---
+        const FocusGrid = ({ onComplete }) => {
+            const [grid, setGrid] = useState([]);
+            const [nextNum, setNextNum] = useState(0);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(120);
+            const [gameOver, setGameOver] = useState(false);
+            const timerRef = useRef(null);
+
+            useEffect(() => {
+                initializeGrid();
+                return () => clearInterval(timerRef.current);
+            }, []);
+
+            useEffect(() => {
+                if (timeLeft === 0 && isPlaying) endGame();
+            }, [timeLeft]);
+
+            const initializeGrid = () => {
+                const numbers = Array.from({ length: 100 }, (_, i) => i);
+                for (let i = numbers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                }
+                setGrid(numbers);
+                setNextNum(0);
+                setGameOver(false);
+                setTimeLeft(120);
+            };
+
+            const startGame = () => {
+                setIsPlaying(true);
+                setGameOver(false);
+                setNextNum(0);
+                setTimeLeft(120);
+                timerRef.current = setInterval(() => setTimeLeft(p => p - 1), 1000);
+            };
+
+            const endGame = () => {
+                clearInterval(timerRef.current);
+                setIsPlaying(false);
+                setGameOver(true);
+                onComplete(nextNum);
+            };
+
+            const handleCellClick = (num) => {
+                if (!isPlaying) return;
+                if (num === nextNum) {
+                    setNextNum(prev => prev + 1);
+                    if (num === 99) endGame();
+                }
+            };
+
+            return (
+                <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
+                    <div className="flex justify-between w-full mb-4 items-center bg-blue-50 p-3 rounded-lg">
+                        <div className="text-xl font-bold text-blue-900">Find: {nextNum}</div>
+                        <div className={`text-xl font-bold font-mono ${timeLeft < 10 ? 'text-red-600' : 'text-gray-700'}`}>
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        </div>
+                    </div>
+
+                    {!isPlaying && !gameOver && (
+                        <div className="text-center py-10">
+                            <i data-lucide="brain" className="w-16 h-16 text-blue-600 mx-auto mb-4"></i>
+                            <h3 className="text-xl font-bold mb-2">Focus Grid Challenge</h3>
+                            <p className="text-gray-600 mb-6 max-w-md mx-auto">Find numbers 00-99 in order. 2 minutes.</p>
+                            <Button onClick={startGame} className="mx-auto"><i data-lucide="play" className="w-4 h-4 mr-2"></i> Start Drill</Button>
+                        </div>
+                    )}
+
+                    {gameOver && (
+                        <div className="text-center py-10 animate-fade-in">
+                            <i data-lucide="trophy" className="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
+                            <h3 className="text-2xl font-bold mb-2">Drill Complete!</h3>
+                            <p className="text-gray-600 mb-6 text-lg">You reached <span className="font-bold text-blue-700 text-xl">{nextNum}</span></p>
+                            <Button onClick={initializeGrid} variant="secondary" className="mx-auto"><i data-lucide="rotate-ccw" className="w-4 h-4 mr-2"></i> Try Again</Button>
+                        </div>
+                    )}
+
+                    {isPlaying && (
+                        <div className="grid grid-cols-10 gap-1 w-full aspect-square select-none">
+                            {grid.map((num) => (
+                                <div key={num} onClick={() => handleCellClick(num)}
+                                    className={`aspect-square flex items-center justify-center text-[10px] sm:text-sm font-bold rounded cursor-pointer transition-colors duration-100 
+                                    ${num < nextNum ? 'bg-blue-200 text-blue-400' : 'bg-white border hover:bg-blue-50'}
+                                    ${num === nextNum ? 'ring-2 ring-blue-600 z-10 bg-blue-50 scale-105' : ''}`}>
+                                    {num.toString().padStart(2, '0')}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- MAIN APP COMPONENT ---
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [userProfile, setUserProfile] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [activeTab, setActiveTab] = useState('dashboard');
+            
+            const [weightLogs, setWeightLogs] = useState([]);
+            const [focusLogs, setFocusLogs] = useState([]);
+            const [allAthletes, setAllAthletes] = useState([]);
+            const [weightInput, setWeightInput] = useState('');
+            const [noteInput, setNoteInput] = useState('');
+            const [coachPasscode, setCoachPasscode] = useState('');
+            const [showCoachModal, setShowCoachModal] = useState(false);
+
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+
+            useEffect(() => {
+                if(!auth) return;
+                const unsub = onAuthStateChanged(auth, async (u) => {
+                    setUser(u);
+                    if (u) await fetchProfile(u.uid, u.email);
+                    else { setUserProfile(null); setLoading(false); }
+                });
+                return () => unsub();
+            }, []);
+
+            useEffect(() => {
+                if (!user || !userProfile || !db) return;
+                let unsubs = [];
+
+                if (userProfile.role === 'athlete') {
+                    const qW = query(collection(db, 'users', user.uid, 'weight_logs'), orderBy('date', 'desc'));
+                    unsubs.push(onSnapshot(qW, s => setWeightLogs(s.docs.map(d => ({id: d.id, ...d.data()})))));
+                    
+                    const qF = query(collection(db, 'users', user.uid, 'focus_logs'), orderBy('date', 'desc'));
+                    unsubs.push(onSnapshot(qF, s => setFocusLogs(s.docs.map(d => ({id: d.id, ...d.data()})))));
+                    
+                    setLoading(false);
+                } else if (userProfile.role === 'coach') {
+                    const qR = query(collection(db, 'roster'));
+                    unsubs.push(onSnapshot(qR, s => {
+                        setAllAthletes(s.docs.map(d => d.data()));
+                        setLoading(false);
+                    }));
+                }
+                return () => unsubs.forEach(u => u());
+            }, [user, userProfile]);
+
+            const fetchProfile = async (uid, email) => {
+                const docRef = doc(db, 'users', uid);
+                const s = await getDoc(docRef);
+                if (s.exists()) setUserProfile(s.data());
+                else {
+                    const p = { uid, email, name: email ? email.split('@')[0] : 'Athlete', role: 'athlete', weightClass: '' };
+                    await setDoc(docRef, p);
+                    await setDoc(doc(db, 'roster', uid), { uid, name: p.name, email, weightClass: '' });
+                    setUserProfile(p);
+                }
+            };
+
+            const handleLogin = async () => {
+                try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+                catch (e) { alert("Login failed. Check popup blockers."); }
+            };
+
+            const handleWeightSubmit = async (e) => {
+                e.preventDefault();
+                if (!user || !weightInput) return;
+                await addDoc(collection(db, 'users', user.uid, 'weight_logs'), {
+                    date: new Date().toISOString(),
+                    weight: parseFloat(weightInput),
+                    notes: noteInput
+                });
+                setWeightInput(''); setNoteInput('');
+            };
+
+            const handleFocusComplete = async (score) => {
+                if (user) await addDoc(collection(db, 'users', user.uid, 'focus_logs'), {
+                    date: new Date().toISOString(),
+                    score,
+                    timestamp: serverTimestamp()
+                });
+            };
+
+            const handleCoachVerify = async () => {
+                if (coachPasscode === 'bluejay') {
+                    const p = { ...userProfile, role: 'coach' };
+                    await setDoc(doc(db, 'users', user.uid), p);
+                    setUserProfile(p);
+                    setShowCoachModal(false);
+                } else alert("Wrong code.");
+            };
+
+            const updateProfile = async (key, val) => {
+                const p = { ...userProfile, [key]: val };
+                await setDoc(doc(db, 'users', user.uid), p);
+                await setDoc(doc(db, 'roster', user.uid), { uid: user.uid, name: p.name, email: p.email, weightClass: p.weightClass || '' }, { merge: true });
+                setUserProfile(p);
+            };
+
+            if (loading) return <div className="h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div></div>;
+
+            if (!user) return (
+                <div className="min-h-screen bg-blue-900 flex flex-col items-center justify-center p-6 text-white">
+                    <div className="bg-white text-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+                        <div className="bg-blue-100 p-4 rounded-full inline-block mb-4"><i data-lucide="trending-up" className="w-12 h-12 text-blue-700"></i></div>
+                        <h1 className="text-3xl font-extrabold text-blue-900">Merrill Bluejays</h1>
+                        <p className="text-gray-500 mb-8">Girls Wrestling Tracker</p>
+                        <Button onClick={handleLogin} className="w-full justify-center mb-4"><i data-lucide="user" className="w-5 h-5 mr-2"></i> Sign in with Google</Button>
+                        <Button onClick={() => signInAnonymously(auth)} variant="ghost" className="w-full text-xs">Guest Login (Testing)</Button>
+                        <div className="mt-6 pt-6 border-t">
+                            <button onClick={() => setShowCoachModal(true)} className="text-sm text-gray-500 hover:text-blue-700">Coach Access</button>
+                        </div>
+                    </div>
+                    {showCoachModal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-xl p-6 w-full max-w-sm text-gray-900">
+                                <h3 className="text-xl font-bold mb-4">Coach Verification</h3>
+                                <input type="password" placeholder="Passcode" className="w-full border p-3 rounded-lg mb-4" value={coachPasscode} onChange={e => setCoachPasscode(e.target.value)} />
+                                <div className="flex gap-2">
+                                    <Button onClick={() => setShowCoachModal(false)} variant="ghost" className="flex-1">Cancel</Button>
+                                    <Button onClick={handleCoachVerify} className="flex-1">Verify</Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+
+            // COACH VIEW
+            if (userProfile?.role === 'coach') return (
+                <div className="min-h-screen bg-gray-50">
+                    <header className="bg-blue-800 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
+                        <h1 className="text-xl font-bold flex items-center gap-2"><i data-lucide="users"></i> Coach Dashboard</h1>
+                        <button onClick={() => signOut(auth)} className="text-sm opacity-80 hover:opacity-100">Log Out</button>
+                    </header>
+                    <main className="max-w-4xl mx-auto p-4">
+                        <Card>
+                            <h2 className="text-lg font-bold mb-4">Team Roster ({allAthletes.length})</h2>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="text-gray-500 text-sm border-b"><tr><th className="p-2">Name</th><th className="p-2">Class</th><th className="p-2">Email</th></tr></thead>
+                                    <tbody>
+                                        {allAthletes.map(a => (
+                                            <tr key={a.uid} className="border-b hover:bg-blue-50">
+                                                <td className="p-2 font-medium">{a.name}</td>
+                                                <td className="p-2"><span className="bg-gray-100 px-2 py-1 rounded text-xs font-bold">{a.weightClass || 'N/A'}</span></td>
+                                                <td className="p-2 text-sm text-gray-500">{a.email}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </main>
+                </div>
+            );
+
+            // ATHLETE VIEW
+            return (
+                <div className="pb-20">
+                    <div className="bg-blue-700 text-white p-6 rounded-b-3xl shadow-lg mb-6">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h2 className="text-2xl font-bold">Hi, {userProfile?.name?.split(' ')[0]}</h2>
+                                <p className="opacity-80 text-sm">Let's work.</p>
+                            </div>
+                            <button onClick={() => signOut(auth)}><i data-lucide="log-out" className="w-6 h-6"></i></button>
+                        </div>
+                        <div className="flex gap-4 mt-6">
+                            <div className="bg-white/10 backdrop-blur p-3 rounded-xl flex-1">
+                                <div className="text-xs opacity-70">Current</div>
+                                <div className="text-xl font-bold">{weightLogs[0]?.weight || '--'} lbs</div>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur p-3 rounded-xl flex-1">
+                                <div className="text-xs opacity-70">Target</div>
+                                <div className="text-xl font-bold">{userProfile?.weightClass || '--'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="px-4 max-w-2xl mx-auto space-y-6">
+                        {activeTab === 'dashboard' && (
+                            <>
+                                <Card>
+                                    <h3 className="font-bold mb-2">Settings</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs text-gray-500">Weight Class</label>
+                                            <select className="w-full mt-1 p-2 border rounded bg-gray-50" value={userProfile?.weightClass || ''} onChange={e => updateProfile('weightClass', e.target.value)}>
+                                                <option value="">Select</option>
+                                                {["100","107","114","120","126","132","138","145","152","165","185","235"].map(w => <option key={w} value={w}>{w}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500">Name</label>
+                                            <input className="w-full mt-1 p-2 border rounded bg-gray-50" value={userProfile?.name || ''} onChange={e => updateProfile('name', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </Card>
+                                <Card className="bg-blue-50 border-blue-200">
+                                    <div className="flex gap-3">
+                                        <i data-lucide="brain" className="text-blue-600 mt-1"></i>
+                                        <div>
+                                            <h3 className="font-bold text-blue-900">Mindset</h3>
+                                            <p className="text-sm text-gray-600 italic">"Hard work beats talent when talent doesn't work hard."</p>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </>
+                        )}
+
+                        {activeTab === 'weight' && (
+                            <>
+                                <Card>
+                                    <form onSubmit={handleWeightSubmit} className="space-y-4">
+                                        <h3 className="font-bold flex gap-2"><i data-lucide="dumbbell" className="text-blue-600"></i> Log Weight</h3>
+                                        <div className="flex gap-4">
+                                            <input type="number" step="0.1" value={weightInput} onChange={e => setWeightInput(e.target.value)} className="flex-1 p-3 border rounded-lg text-lg font-bold" placeholder="0.0" required />
+                                            <input type="text" value={noteInput} onChange={e => setNoteInput(e.target.value)} className="flex-[2] p-3 border rounded-lg" placeholder="Notes..." />
+                                        </div>
+                                        <Button className="w-full">Save</Button>
+                                    </form>
+                                </Card>
+                                {weightLogs.length > 0 && (
+                                    <Card className="h-64">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={[...weightLogs].reverse()}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                                <XAxis dataKey="date" tickFormatter={d => new Date(d).toLocaleDateString(undefined, {month:'numeric', day:'numeric'})} />
+                                                <YAxis domain={['dataMin - 5', 'dataMax + 5']} hide />
+                                                <Tooltip />
+                                                <Line type="monotone" dataKey="weight" stroke="#1d4ed8" strokeWidth={3} dot={{r: 4}} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </Card>
+                                )}
+                            </>
+                        )}
+
+                        {activeTab === 'focus' && (
+                            <Card>
+                                <FocusGrid onComplete={handleFocusComplete} />
+                                <div className="mt-6 pt-6 border-t">
+                                    <h3 className="font-bold mb-2">History</h3>
+                                    {focusLogs.slice(0, 5).map(l => (
+                                        <div key={l.id} className="flex justify-between text-sm py-2 border-b">
+                                            <span className="text-gray-500">{new Date(l.date).toLocaleDateString()}</span>
+                                            <span className="font-bold text-blue-700">Score: {l.score}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        )}
+                    </div>
+
+                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 pb-safe z-40">
+                        <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center ${activeTab === 'dashboard' ? 'text-blue-700' : 'text-gray-400'}`}>
+                            <i data-lucide="layout-dashboard"></i><span className="text-[10px] mt-1">Dash</span>
+                        </button>
+                        <button onClick={() => setActiveTab('weight')} className={`flex flex-col items-center ${activeTab === 'weight' ? 'text-blue-700' : 'text-gray-400'}`}>
+                            <i data-lucide="scale"></i><span className="text-[10px] mt-1">Weight</span>
+                        </button>
+                        <button onClick={() => setActiveTab('focus')} className={`flex flex-col items-center ${activeTab === 'focus' ? 'text-blue-700' : 'text-gray-400'}`}>
+                            <i data-lucide="target"></i><span className="text-[10px] mt-1">Focus</span>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>

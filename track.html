@@ -468,14 +468,14 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signOut as firebaseSignOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KcKM27sYTLQ",
+            apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KrKM27sYTLQ",
             authDomain: "bluejays-wrestling.firebaseapp.com",
             databaseURL: "https://bluejays-wrestling-default-rtdb.firebaseio.com",
             projectId: "bluejays-wrestling",
@@ -485,9 +485,9 @@
             measurementId: "G-JFG8K0HQK5"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         let currentUser = null;
         let currentSection = 'dashboard';
@@ -507,7 +507,7 @@
         ];
 
         // Auth State Observer
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, user => {
             if (user) {
                 currentUser = user;
                 loadUserProfile();
@@ -532,9 +532,9 @@
         }
 
         async function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
+            const provider = new GoogleAuthProvider();
             try {
-                await auth.signInWithPopup(provider);
+                await signInWithPopup(auth, provider);
             } catch (error) {
                 alert('Error signing in: ' + error.message);
             }
@@ -545,7 +545,7 @@
             const password = document.getElementById('passwordInput').value;
             
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 alert('Error signing in: ' + error.message);
             }
@@ -563,12 +563,12 @@
             }
 
             try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCredential.user.uid).set({
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
                     name: name,
                     email: email,
                     weightClass: weightClass,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: serverTimestamp(),
                     isAdmin: false
                 });
             } catch (error) {
@@ -577,11 +577,11 @@
         }
 
         function signOut() {
-            auth.signOut();
+            firebaseSignOut(auth);
         }
 
         async function loadUserProfile() {
-            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
             
             if (!userDoc.exists) {
                 // New user from Google sign-in, create profile

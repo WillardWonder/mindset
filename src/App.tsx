@@ -24,7 +24,6 @@ import {
 
 // --- Firebase Imports ---
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { 
   getAuth, 
   onAuthStateChanged, 
@@ -47,6 +46,7 @@ import {
 } from "firebase/firestore";
 
 // --- Configuration ---
+// This is your specific configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KrKM27sYTLQ",
   authDomain: "bluejays-wrestling.firebaseapp.com",
@@ -58,11 +58,20 @@ const firebaseConfig = {
   measurementId: "G-JFG8K0HQK5"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// --- Initialize Firebase ---
+// We wrap this in a try-catch block so the app doesn't crash 
+// if an ad-blocker or firewall interferes with the connection.
+let app;
+let auth;
+let db;
+
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (error) {
+  console.error("Firebase failed to load:", error);
+}
 
 // --- Types ---
 interface UserProfile {
@@ -112,7 +121,7 @@ const Card = ({ children, className = '' }: any) => (
   </div>
 );
 
-// --- Focus Grid Game ---
+// --- Focus Grid Game Component ---
 const FocusGrid = ({ onComplete }: { onComplete: (score: number) => void }) => {
   const [grid, setGrid] = useState<number[]>([]);
   const [nextNum, setNextNum] = useState(0);
@@ -232,7 +241,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // Data
+  // Data State
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
   const [focusLogs, setFocusLogs] = useState<FocusLog[]>([]);
   const [allAthletes, setAllAthletes] = useState<any[]>([]);
@@ -245,6 +254,12 @@ export default function App() {
 
   // Auth Listener
   useEffect(() => {
+    // If auth failed to load, stop loading spinner
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
@@ -259,7 +274,7 @@ export default function App() {
 
   // Data Fetching
   useEffect(() => {
-    if (!user || !userProfile) return;
+    if (!user || !userProfile || !db) return;
 
     if (userProfile.role === 'athlete') {
       const unsubWeights = onSnapshot(
@@ -273,10 +288,6 @@ export default function App() {
       setLoading(false);
       return () => { unsubWeights(); unsubFocus(); };
     } else if (userProfile.role === 'coach') {
-      // In a real app with proper index, we'd query 'users' collection.
-      // For simplicity, we use a separate roster collection or assume we can read user profiles.
-      // Note: Reading all users usually requires Admin SDK or specific Firestore structure.
-      // We will use a dedicated 'roster' collection that users write to upon signup.
       const q = query(collection(db, 'roster'));
       const unsub = onSnapshot(q, (snap) => {
         setAllAthletes(snap.docs.map(d => d.data()));
@@ -287,6 +298,7 @@ export default function App() {
   }, [user, userProfile]);
 
   const fetchUserProfile = async (uid: string, email: string) => {
+    if (!db) return;
     const docRef = doc(db, 'users', uid);
     const docSnap = await getDoc(docRef);
     
@@ -300,6 +312,7 @@ export default function App() {
         role: 'athlete'
       };
       await setDoc(docRef, newProfile);
+      
       // Add to public roster
       await setDoc(doc(db, 'roster', uid), {
         uid,
@@ -307,11 +320,16 @@ export default function App() {
         email: newProfile.email,
         weightClass: 'Unassigned'
       });
+      
       setUserProfile(newProfile);
     }
   };
 
   const handleLogin = async () => {
+    if (!auth) {
+      alert("Firebase not initialized. Check console for errors.");
+      return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -323,7 +341,7 @@ export default function App() {
 
   const handleWeightSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !weightInput) return;
+    if (!user || !weightInput || !db) return;
 
     await addDoc(collection(db, 'users', user.uid, 'weight_logs'), {
       date: new Date().toISOString(),
@@ -335,7 +353,7 @@ export default function App() {
   };
 
   const handleFocusComplete = async (score: number) => {
-    if (!user) return;
+    if (!user || !db) return;
     await addDoc(collection(db, 'users', user.uid, 'focus_logs'), {
       date: new Date().toISOString(),
       score: score,
@@ -345,7 +363,7 @@ export default function App() {
 
   const handleBecomeCoach = async () => {
     if (coachPasscode === 'bluejay') {
-      if (user && userProfile) {
+      if (user && userProfile && db) {
         const newProfile = { ...userProfile, role: 'coach' as const };
         await setDoc(doc(db, 'users', user.uid), newProfile);
         setUserProfile(newProfile);
@@ -357,9 +375,10 @@ export default function App() {
   };
 
   const updateProfile = async (field: string, value: string) => {
-    if (!user || !userProfile) return;
+    if (!user || !userProfile || !db) return;
     const newProfile = { ...userProfile, [field]: value };
     await setDoc(doc(db, 'users', user.uid), newProfile);
+    
     // Update roster entry
     await setDoc(doc(db, 'roster', user.uid), {
       uid: user.uid,
@@ -367,6 +386,7 @@ export default function App() {
       email: newProfile.email,
       weightClass: newProfile.weightClass || 'Unassigned'
     }, { merge: true });
+    
     setUserProfile(newProfile);
   };
 
@@ -392,9 +412,14 @@ export default function App() {
             <Button onClick={handleLogin} className="w-full justify-center text-lg h-12">
               <User size={20} /> Sign in with Google
             </Button>
-            <Button onClick={() => signInAnonymously(auth)} variant="ghost" className="w-full text-xs">
-              Guest Login (Testing Only)
-            </Button>
+            
+            {/* Show Guest Login if Auth is working */}
+            {auth && (
+              <Button onClick={() => signInAnonymously(auth)} variant="ghost" className="w-full text-xs">
+                Guest Login (Testing Only)
+              </Button>
+            )}
+
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>

@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merrill Bluejays Wrestling Mindset</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #666;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        
+        .login-container h2 {
+            color: #1e3c72;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+        
+        .btn-google:hover {
+            background: #357ae8;
+        }
+        
+        .btn-primary {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2a5298;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        input[type="text"], input[type="password"], input[type="number"], input[type="email"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .content-section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .focus-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+            max-width: 500px;
+        }
+        
+        .focus-cell {
+            aspect-ratio: 1;
+            border: 2px solid #1e3c72;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .focus-cell:hover {
+            transform: scale(1.05);
+        }
+        
+        .focus-cell.crossed {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .timer {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+            color: #1e3c72;
+            font-weight: bold;
+        }
+        
+        .stats-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1e3c72;
+        }
+        
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .admin-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-filters select {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mindset-quote {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .goal-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .goal-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginView" class="login-container">
+        <h2>🤼‍♀️ Merrill Bluejays Wrestling</h2>
+        <button class="btn btn-google" onclick="signInWithGoogle()">Sign in with Google</button>
+        <div class="divider">- OR -</div>
+        <input type="email" id="emailInput" placeholder="Email">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button class="btn btn-primary" onclick="signInWithEmail()">Sign In</button>
+        <button class="btn btn-secondary" onclick="showSignUp()">Create Account</button>
+    </div>
+
+    <div id="signupView" class="login-container hidden">
+        <h2>Create Account</h2>
+        <input type="text" id="signupName" placeholder="Full Name">
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPassword" placeholder="Password">
+        <select id="signupWeightClass">
+            <option value="">Select Weight Class</option>
+            <option value="100">100 lbs</option>
+            <option value="105">105 lbs</option>
+            <option value="110">110 lbs</option>
+            <option value="115">115 lbs</option>
+            <option value="120">120 lbs</option>
+            <option value="125">125 lbs</option>
+            <option value="130">130 lbs</option>
+            <option value="135">135 lbs</option>
+            <option value="140">140 lbs</option>
+            <option value="145">145 lbs</option>
+            <option value="155">155 lbs</option>
+            <option value="170">170 lbs</option>
+            <option value="190">190 lbs</option>
+            <option value="235">235 lbs</option>
+        </select>
+        <button class="btn btn-primary" onclick="createAccount()">Create Account</button>
+        <button class="btn btn-secondary" onclick="backToLogin()">Back to Login</button>
+    </div>
+
+    <div id="appView" class="container hidden">
+        <div class="header">
+            <h1>🤼‍♀️ Merrill Bluejays Wrestling Mindset</h1>
+            <p>Train Your Mind. Dominate the Mat.</p>
+        </div>
+        
+        <div class="user-info">
+            <span id="userName">Welcome, Athlete!</span>
+            <button class="btn btn-secondary" onclick="signOut()" style="width: auto; padding: 8px 16px;">Sign Out</button>
+        </div>
+
+        <div id="athleteView">
+            <div class="tab-container">
+                <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab" onclick="switchTab('weight')">Weight Log</button>
+                <button class="tab" onclick="switchTab('goals')">Goals</button>
+                <button class="tab" onclick="switchTab('mindset')">Mindset</button>
+                <button class="tab" onclick="switchTab('focus')">Focus Grid</button>
+            </div>
+
+            <div id="dashboardSection" class="content-section active">
+                <h2>Your Dashboard</h2>
+                <div class="stats-card">
+                    <h3>Current Weight: <span id="currentWeight">--</span> lbs</h3>
+                    <p>Weight Class: <span id="weightClass">--</span> lbs</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Active Goals: <span id="activeGoals">0</span></h3>
+                </div>
+                <div class="stats-card">
+                    <h3>Focus Grid This Week: <span id="focusProgress">0</span>/100</h3>
+                    <p>Best Time: <span id="bestTime">--</span></p>
+                </div>
+                <div class="chart-container">
+                    <h3>Weight Trend (Last 30 Days)</h3>
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+
+            <div id="weightSection" class="content-section">
+                <h2>Weight Log</h2>
+                <input type="number" id="weightInput" placeholder="Enter weight (lbs)" step="0.1">
+                <button class="btn btn-primary" onclick="logWeight()">Log Weight</button>
+                <h3 style="margin-top: 30px;">Recent Entries</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weightHistory"></tbody>
+                </table>
+            </div>
+
+            <div id="goalsSection" class="content-section">
+                <h2>Your Goals</h2>
+                <input type="text" id="goalInput" placeholder="Enter a new goal">
+                <button class="btn btn-primary" onclick="addGoal()">Add Goal</button>
+                <h3 style="margin-top: 30px;">Active Goals</h3>
+                <div id="goalsList"></div>
+            </div>
+
+            <div id="mindsetSection" class="content-section">
+                <h2>Wrestling Mindset</h2>
+                <div class="mindset-quote" id="mindsetQuote">
+                    "Champions aren't made in the gyms. Champions are made from something they have deep inside them—a desire, a dream, a vision."
+                </div>
+                <div class="stats-card">
+                    <h3>Daily Affirmations</h3>
+                    <p>✓ I am strong and capable</p>
+                    <p>✓ I train harder than my competition</p>
+                    <p>✓ I am mentally tough</p>
+                    <p>✓ I control my attitude and effort</p>
+                </div>
+                <div class="stats-card">
+                    <h3>Mental Training Tips</h3>
+                    <p><strong>Visualization:</strong> Spend 5 minutes daily visualizing perfect technique</p>
+                    <p><strong>Breathing:</strong> 4-7-8 breathing for stress management</p>
+                    <p><strong>Self-Talk:</strong> Replace negative thoughts with positive affirmations</p>
+                </div>
+            </div>
+
+            <div id="focusSection" class="content-section">
+                <h2>Weekly Focus Grid Challenge</h2>
+                <p>Cross off numbers from 00 to 99 in order as fast as you can. Complete it in under 2 minutes!</p>
+                <div class="timer" id="gridTimer">2:00</div>
+                <button class="btn btn-primary" id="startGridBtn" onclick="startFocusGrid()">Start Challenge</button>
+                <button class="btn btn-secondary hidden" id="resetGridBtn" onclick="resetFocusGrid()">Reset Grid</button>
+                <p style="margin-top: 10px;">Next Number: <strong id="nextNumber">00</strong></p>
+                <div class="focus-grid" id="focusGrid"></div>
+                <div class="stats-card">
+                    <h3>Your Best Times</h3>
+                    <div id="bestTimes"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminView" class="hidden">
+            <div class="tab-container">
+                <button class="tab active" onclick="switchAdminTab('overview')">Overview</button>
+                <button class="tab" onclick="switchAdminTab('individual')">Individual Stats</button>
+                <button class="tab" onclick="switchAdminTab('weightclass')">By Weight Class</button>
+            </div>
+
+            <div id="adminOverview" class="content-section active">
+                <h2>Team Overview</h2>
+                <div class="admin-filters">
+                    <select id="dateFilter" onchange="loadAdminData()">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                <div class="stats-card">
+                    <h3>Team Statistics</h3>
+                    <p>Total Athletes: <span id="totalAthletes">0</span></p>
+                    <p>Active This Week: <span id="activeThisWeek">0</span></p>
+                    <p>Average Weight Logs/Week: <span id="avgWeightLogs">0</span></p>
+                </div>
+                <div id="teamData"></div>
+            </div>
+
+            <div id="adminIndividual" class="content-section">
+                <h2>Individual Athlete Stats</h2>
+                <select id="athleteFilter" onchange="loadIndividualStats()">
+                    <option value="">Select Athlete</option>
+                </select>
+                <div id="individualStats"></div>
+            </div>
+
+            <div id="adminWeightClass" class="content-section">
+                <h2>Weight Class Analysis</h2>
+                <select id="weightClassFilter" onchange="loadWeightClassStats()">
+                    <option value="">All Weight Classes</option>
+                    <option value="100">100 lbs</option>
+                    <option value="105">105 lbs</option>
+                    <option value="110">110 lbs</option>
+                    <option value="115">115 lbs</option>
+                    <option value="120">120 lbs</option>
+                    <option value="125">125 lbs</option>
+                    <option value="130">130 lbs</option>
+                    <option value="135">135 lbs</option>
+                    <option value="140">140 lbs</option>
+                    <option value="145">145 lbs</option>
+                    <option value="155">155 lbs</option>
+                    <option value="170">170 lbs</option>
+                    <option value="190">190 lbs</option>
+                    <option value="235">235 lbs</option>
+                </select>
+                <div id="weightClassStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDP7-Ietl5arW6T-DaS8Bo6KcKM27sYTLQ",
+            authDomain: "bluejays-wrestling.firebaseapp.com",
+            databaseURL: "https://bluejays-wrestling-default-rtdb.firebaseio.com",
+            projectId: "bluejays-wrestling",
+            storageBucket: "bluejays-wrestling.firebasestorage.app",
+            messagingSenderId: "23720620944",
+            appId: "1:23720620944:web:2444e543fe6f8812f8f915",
+            measurementId: "G-JFG8K0HQK5"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let currentSection = 'dashboard';
+        let gridTimer = null;
+        let gridStartTime = null;
+        let currentNumber = 0;
+        let isAdmin = false;
+
+        const mindsetQuotes = [
+            "Champions aren't made in the gyms. Champions are made from something they have deep inside them—a desire, a dream, a vision.",
+            "It's not about being the best. It's about being better than you were yesterday.",
+            "The fight is won or lost far away from witnesses—behind the lines, in the gym, and out there on the road, long before I dance under those lights.",
+            "Success is no accident. It is hard work, perseverance, learning, studying, sacrifice and most of all, love of what you are doing.",
+            "Pain is temporary. Pride is forever.",
+            "Your mind is your strongest muscle. Train it well.",
+            "The harder the battle, the sweeter the victory."
+        ];
+
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                loadUserProfile();
+            } else {
+                showLogin();
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('signupView').classList.add('hidden');
+            document.getElementById('appView').classList.add('hidden');
+        }
+
+        function showSignUp() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('signupView').classList.remove('hidden');
+        }
+
+        function backToLogin() {
+            showLogin();
+        }
+
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                alert('Error signing in: ' + error.message);
+            }
+        }
+
+        async function signInWithEmail() {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert('Error signing in: ' + error.message);
+            }
+        }
+
+        async function createAccount() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const weightClass = document.getElementById('signupWeightClass').value;
+
+            if (!name || !email || !password || !weightClass) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    weightClass: weightClass,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isAdmin: false
+                });
+            } catch (error) {
+                alert('Error creating account: ' + error.message);
+            }
+        }
+
+        function signOut() {
+            auth.signOut();
+        }
+
+        async function loadUserProfile() {
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            
+            if (!userDoc.exists) {
+                // New user from Google sign-in, create profile
+                const name = currentUser.displayName || 'Athlete';
+                document.getElementById('signupName').value = name;
+                document.getElementById('signupEmail').value = currentUser.email;
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('signupView').classList.remove('hidden');
+                return;
+            }
+
+            const userData = userDoc.data();
+            isAdmin = userData.isAdmin || false;
+            
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('signupView').classList.add('hidden');
+            document.getElementById('appView').classList.remove('hidden');
+            document.getElementById('userName').textContent = `Welcome, ${userData.name}!`;
+
+            if (isAdmin) {
+                document.getElementById('athleteView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                document.getElementById('athleteView').classList.remove('hidden');
+                document.getElementById('adminView').classList.add('hidden');
+                loadDashboard();
+                initializeFocusGrid();
+            }
+
+            // Set random mindset quote
+            const quote = mindsetQuotes[Math.floor(Math.random() * mindsetQuotes.length)];
+            document.getElementById('mindsetQuote').textContent = quote;
+        }
+
+        function switchTab(tab) {
+            currentSection = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Section').classList.add('active');
+            
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'weight') loadWeightHistory();
+            if (tab === 'goals') loadGoals();
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('#adminView .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#adminView .content-section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            
+            if (tab === 'overview') {
+                document.getElementById('adminOverview').classList.add('active');
+                loadAdminData();
+            } else if (tab === 'individual') {
+                document.getElementById('adminIndividual').classList.add('active');
+                loadAthleteList();
+            } else if (tab === 'weightclass') {
+                document.getElementById('adminWeightClass').classList.add('active');
+                loadWeightClassStats();
+            }
+        }
+
+        async function loadDashboard() {
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data();
+            
+            document.getElementById('weightClass').textContent = userData.weightClass || '--';
+
+            // Get latest weight
+            const weights = await db.collection('weights')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+            
+            if (!weights.empty) {
+                document.getElementById('currentWeight').textContent = weights.docs[0].data().weight;
+            }
+
+            // Count active goals
+            const goals = await db.collection('goals')
+                .where('userId', '==', currentUser.uid)
+                .where('completed', '==', false)
+                .get();
+            
+            document.getElementById('activeGoals').textContent = goals.size;
+
+            // Get focus grid progress this week
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+
+            const focusGrids = await db.collection('focusGrids')
+                .where('userId', '==', currentUser.uid)
+                .where('timestamp', '>=', weekStart)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+
+            if (!focusGrids.empty) {
+                const gridData = focusGrids.docs[0].data();
+                document.getElementById('focusProgress').textContent = gridData.completed ? '100' : gridData.progress || '0';
+                if (gridData.time) {
+                    const minutes = Math.floor(gridData.time / 60);
+                    const seconds = gridData.time % 60;
+                    document.getElementById('bestTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+
+            loadWeightChart();
+        }
+
+        async function loadWeightChart() {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const weights = await db.collection('weights')
+                .where('userId', '==', currentUser.uid)
+                .where('timestamp', '>=', thirtyDaysAgo)
+                .orderBy('timestamp', 'asc')
+                .get();
+
+            const canvas = document.getElementById('weightChart');
+            const ctx = canvas.getContext('2d');
+            
+            if (weights.empty) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillText('No weight data yet', 10, 50);
+                return;
+            }
+
+            const data = weights.docs.map(doc => ({
+                date: doc.data().timestamp.toDate(),
+                weight: doc.data().weight
+            }));
+
+            // Simple line chart
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            const padding = 40;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+            
+            const weights_arr = data.map(d => d.weight);
+            const minWeight = Math.min(...weights_arr) - 2;
+            const maxWeight = Math.max(...weights_arr) + 2;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#1e3c72';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            data.forEach((point, i) => {
+                const x = padding + (i / (data.length - 1)) * chartWidth;
+                const y = padding + chartHeight - ((point.weight - minWeight) / (maxWeight - minWeight)) * chartHeight;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            
+            ctx.stroke();
+        }
+
+        async function logWeight() {
+            const weight = parseFloat(document.getElementById('weightInput').value);
+            
+            if (!weight || weight <= 0) {
+                alert('Please enter a valid weight');
+                return;
+            }
+
+            try {
+                await db.collection('weights').add({
+                    userId: currentUser.uid,
+                    weight: weight,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('weightInput').value = '';
+                alert('Weight logged successfully!');
+                loadWeightHistory();
+                loadDashboard();
+            } catch (error) {
+                alert('Error logging weight: ' + error.message);
+            }
+        }
+
+        async function loadWeightHistory() {
+            const weights = await db.collection('weights')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('timestamp', 'desc')
+                .limit(30)
+                .get();
+
+            const tbody = document.getElementById('weightHistory');
+            tbody.innerHTML = '';
+
+            let previousWeight = null;
+            weights.forEach(doc => {
+                const data = doc.data();
+                const row = tbody.insertRow();
+                
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString() : 'Just now';
+                row.insertCell(0).textContent = date;
+                row.insertCell(1).textContent = data.weight + ' lbs';
+                
+                let diff = '';
+                if (previousWeight !== null) {
+                    const change = data.weight - previousWeight;
+                    diff = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
+                }
+                row.insertCell(2).textContent = diff;
+                previousWeight = data.weight;
+            });
+        }
+
+        async function addGoal() {
+            const goal = document.getElementById('goalInput').value.trim();
+            
+            if (!goal) {
+                alert('Please enter a goal');
+                return;
+            }
+
+            try {
+                await db.collection('goals').add({
+                    userId: currentUser.uid,
+                    goal: goal,
+                    completed: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('goalInput').value = '';
+                loadGoals();
+            } catch (error) {
+                alert('Error adding goal: ' + error.message);
+            }
+        }
+
+        async function loadGoals() {
+            const goals = await db.collection('goals')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('createdAt', 'desc')
+                .get();
+
+            const container = document.getElementById('goalsList');
+            container.innerHTML = '';
+
+            goals.forEach(doc => {
+                const data = doc.data();
+                const div = document.createElement('div');
+                div.className = 'goal-item' + (data.completed ? ' completed' : '');
+                div.innerHTML = `
+                    <span>${data.goal}</span>
+                    <button class="btn btn-${data.completed ? 'secondary' : 'primary'}" 
+                            style="width: auto; padding: 8px 16px;"
+                            onclick="toggleGoal('${doc.id}', ${!data.completed})">
+                        ${data.completed ? 'Reopen' : 'Complete'}
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function toggleGoal(goalId, completed) {
+            await db.collection('goals').doc(goalId).update({ completed });
+            loadGoals();
+            loadDashboard();
+        }
+
+        function initializeFocusGrid() {
+            const grid = document.getElementById('focusGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'focus-cell';
+                cell.textContent = i.toString().padStart(2, '0');
+                cell.dataset.number = i;
+                cell.onclick = () => handleGridClick(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        function startFocusGrid() {
+            currentNumber = 0;
+            gridStartTime = Date.now();
+            document.getElementById('startGridBtn').classList.add('hidden');
+            document.getElementById('resetGridBtn').classList.remove('hidden');
+            document.getElementById('nextNumber').textContent = '00';
+            
+            document.querySelectorAll('.focus-cell').forEach(cell => {
+                cell.classList.remove('crossed');
+            });
+            
+            gridTimer = setInterval(updateTimer, 100);
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - gridStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('gridTimer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function handleGridClick(number) {
+            if (!gridTimer) return;
+            
+            if (number === currentNumber) {
+                const cell = document.querySelector(`.focus-cell[data-number="${number}"]`);
+                cell.classList.add('crossed');
+                currentNumber++;
+                
+                if (currentNumber === 100) {
+                    completeFocusGrid();
+                } else {
+                    document.getElementById('nextNumber').textContent = currentNumber.toString().padStart(2, '0');
+                }
+            }
+        }
+
+        async function completeFocusGrid() {
+            clearInterval(gridTimer);
+            gridTimer = null;
+            
+            const totalTime = Math.floor((Date.now() - gridStartTime) / 1000);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            
+            alert(`Completed in ${minutes}:${seconds.toString().padStart(2, '0')}!`);
+            
+            try {
+                await db.collection('focusGrids').add({
+                    userId: currentUser.uid,
+                    time: totalTime,
+                    completed: true,
+                    progress: 100,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                loadBestTimes();
+            } catch (error) {
+                alert('Error saving time: ' + error.message);
+            }
+        }
+
+        function resetFocusGrid() {
+            clearInterval(gridTimer);
+            gridTimer = null;
+            currentNumber = 0;
+            document.getElementById('gridTimer').textContent = '2:00';
+            document.getElementById('startGridBtn').classList.remove('hidden');
+            document.getElementById('resetGridBtn').classList.add('hidden');
+            document.getElementById('nextNumber').textContent = '00';
+            initializeFocusGrid();
+        }
+
+        async function loadBestTimes() {
+            const times = await db.collection('focusGrids')
+                .where('userId', '==', currentUser.uid)
+                .where('completed', '==', true)
+                .orderBy('time', 'asc')
+                .limit(5)
+                .get();
+
+            const container = document.getElementById('bestTimes');
+            container.innerHTML = '';
+
+            times.forEach((doc, index) => {
+                const data = doc.data();
+                const minutes = Math.floor(data.time / 60);
+                const seconds = data.time % 60;
+                const p = document.createElement('p');
+                p.textContent = `${index + 1}. ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                container.appendChild(p);
+            });
+        }
+
+        // Admin Functions
+        async function loadAdminData() {
+            const dateFilter = parseInt(document.getElementById('dateFilter').value);
+            let startDate = new Date();
+            
+            if (dateFilter !== 'all') {
+                startDate.setDate(startDate.getDate() - dateFilter);
+            } else {
+                startDate = new Date(0);
+            }
+
+            const users = await db.collection('users').get();
+            document.getElementById('totalAthletes').textContent = users.size;
+
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+
+            const activeUsers = await db.collection('weights')
+                .where('timestamp', '>=', weekAgo)
+                .get();
+            
+            const uniqueUsers = new Set(activeUsers.docs.map(doc => doc.data().userId));
+            document.getElementById('activeThisWeek').textContent = uniqueUsers.size;
+
+            const allWeights = await db.collection('weights')
+                .where('timestamp', '>=', weekAgo)
+                .get();
+            
+            const avg = uniqueUsers.size > 0 ? (allWeights.size / uniqueUsers.size).toFixed(1) : 0;
+            document.getElementById('avgWeightLogs').textContent = avg;
+
+            // Load team data table
+            const teamData = document.getElementById('teamData');
+            teamData.innerHTML = '<h3>Athlete Activity</h3>';
+            
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Weight Class</th>
+                        <th>Last Weight Log</th>
+                        <th>Active Goals</th>
+                    </tr>
+                </thead>
+                <tbody id="teamTableBody"></tbody>
+            `;
+            teamData.appendChild(table);
+
+            const tbody = table.querySelector('tbody');
+            
+            for (const userDoc of users.docs) {
+                const userData = userDoc.data();
+                
+                const weights = await db.collection('weights')
+                    .where('userId', '==', userDoc.id)
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+                
+                const goals = await db.collection('goals')
+                    .where('userId', '==', userDoc.id)
+                    .where('completed', '==', false)
+                    .get();
+                
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = userData.name;
+                row.insertCell(1).textContent = userData.weightClass + ' lbs';
+                
+                const lastLog = weights.empty ? 'Never' : weights.docs[0].data().timestamp.toDate().toLocaleDateString();
+                row.insertCell(2).textContent = lastLog;
+                row.insertCell(3).textContent = goals.size;
+            }
+        }
+
+        async function loadAthleteList() {
+            const select = document.getElementById('athleteFilter');
+            select.innerHTML = '<option value="">Select Athlete</option>';
+            
+            const users = await db.collection('users').get();
+            users.forEach(doc => {
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = doc.data().name;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadIndividualStats() {
+            const athleteId = document.getElementById('athleteFilter').value;
+            const container = document.getElementById('individualStats');
+            
+            if (!athleteId) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const userDoc = await db.collection('users').doc(athleteId).get();
+            const userData = userDoc.data();
+
+            const weights = await db.collection('weights')
+                .where('userId', '==', athleteId)
+                .orderBy('timestamp', 'desc')
+                .get();
+
+            const goals = await db.collection('goals')
+                .where('userId', '==', athleteId)
+                .get();
+
+            const focusGrids = await db.collection('focusGrids')
+                .where('userId', '==', athleteId)
+                .where('completed', '==', true)
+                .orderBy('time', 'asc')
+                .limit(1)
+                .get();
+
+            container.innerHTML = `
+                <div class="stats-card">
+                    <h3>${userData.name}</h3>
+                    <p>Weight Class: ${userData.weightClass} lbs</p>
+                    <p>Total Weight Logs: ${weights.size}</p>
+                    <p>Total Goals: ${goals.size}</p>
+                    <p>Completed Goals: ${goals.docs.filter(d => d.data().completed).length}</p>
+                    <p>Best Focus Grid Time: ${focusGrids.empty ? 'N/A' : Math.floor(focusGrids.docs[0].data().time / 60) + ':' + (focusGrids.docs[0].data().time % 60).toString().padStart(2, '0')}</p>
+                </div>
+                <h3>Weight History</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Date</th><th>Weight</th></tr>
+                    </thead>
+                    <tbody>
+                        ${weights.docs.map(doc => `
+                            <tr>
+                                <td>${doc.data().timestamp.toDate().toLocaleDateString()}</td>
+                                <td>${doc.data().weight} lbs</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function loadWeightClassStats() {
+            const weightClass = document.getElementById('weightClassFilter').value;
+            const container = document.getElementById('weightClassStats');
+
+            let query = db.collection('users');
+            if (weightClass) {
+                query = query.where('weightClass', '==', weightClass);
+            }
+
+            const users = await query.get();
+            
+            container.innerHTML = `
+                <div class="stats-card">
+                    <h3>${weightClass ? weightClass + ' lbs Weight Class' : 'All Weight Classes'}</h3>
+                    <p>Total Athletes: ${users.size}</p>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Weight Class</th>
+                            <th>Recent Logs</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weightClassTableBody"></tbody>
+                </table>
+            `;
+
+            const tbody = container.querySelector('tbody');
+            
+            for (const userDoc of users.docs) {
+                const userData = userDoc.data();
+                
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                
+                const recentWeights = await db.collection('weights')
+                    .where('userId', '==', userDoc.id)
+                    .where('timestamp', '>=', weekAgo)
+                    .get();
+                
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = userData.name;
+                row.insertCell(1).textContent = userData.weightClass + ' lbs';
+                row.insertCell(2).textContent = recentWeights.size;
+            }
+        }
+    </script>
+</body>
+</html>
